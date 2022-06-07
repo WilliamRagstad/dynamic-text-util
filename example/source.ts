@@ -5,3 +5,5 @@ export function current_year() {
 export function todays_date() {
     return new Date().toDateString();
 }
+
+export const author = 'John Doe';

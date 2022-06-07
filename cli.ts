@@ -78,7 +78,7 @@ async function compileFile(file: string, source: string) {
     templateStrings.push({
       start,
       end,
-      expression: parseExpression(fileContents.substring(start + 3, end)),
+      expression: parseExpression(fileContents.substring(start + 3, end), sourceModule),
     });
     start = fileContents.indexOf(startSym, end);
   }
@@ -94,21 +94,15 @@ async function compileFile(file: string, source: string) {
   else {
     // Append everything before the first template string
     compiled = fileContents.substring(0, templateStrings[0].start);
+
+    // Construct an isolated function with arguments from the exported module
+    const sourceModuleName = getVariableName(() => sourceModule);
+    const funcStart =  `((${Object.keys(sourceModule).join(", ")}) =>`;
+    const funcEnd = `).call({}, ${Object.keys(sourceModule).map(k => sourceModuleName + "." + k).join(", ")})`;
     
     for (let i = 0; i < templateStrings.length; i++) {
       const template = templateStrings[i];
-      
-
-      // const result = sourceModule[template.expression]();
-      // const result = eval(template.expression);
-      
-      // Construct an isolated function with arguments from the exported module
-      const func = `((${Object.keys(sourceModule).join(", ")}) =>
-                    ${template.expression}).call({},
-                      ${Object.keys(sourceModule).map(k => "sourceModule." + k).join(", ")}
-                    )`;
-      const result = eval(func);
-
+      const result = eval(funcStart + template.expression + funcEnd);
       if (DEBUG) console.log(`Compiled expression ${template.expression} to ${result}`);
       compiled += result;
       // Append everything after the template string until the next template string
@@ -125,14 +119,28 @@ async function compileFile(file: string, source: string) {
 }
 
 /**
+ * Extract the name of a variable identifier
+ * @param name An arrow function pointing to the variable name
+ * @returns The name of the variable
+ */
+function getVariableName<TResult>(name: () => TResult) {
+  const m = name.toString().split("=>")[1].trim();
+  if (m == '') throw "The function does not contain a statement matching 'return name;'";
+  return m;
+}
+
+/**
  * Convert an input template string to a valid JavaScript expression.
  * @param expression Input expression to compile
  * @returns JS expression that can be evaluated to return the result
  */
-function parseExpression(expression: string) {
+function parseExpression(expression: string, sourceModule: any) {
   expression = expression.trim();
-  // If the expression is a single identifier, call it as a function
-  if (expression.match(/^[a-zA-Z_][a-zA-Z0-9_]*$/)) {
+  // If the expression is a single function identifier, call it
+  if (
+    expression.match(/^[a-zA-Z_][a-zA-Z0-9_]*$/) &&
+    typeof sourceModule[expression] === "function"
+  ) {
     return `${expression}()`;
   }
   // Otherwise, treat it as a valid JavaScript expression already

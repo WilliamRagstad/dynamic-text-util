@@ -11,9 +11,23 @@ It is intended to be used as a CLI utility for developers
 and authors in build scripts to automate the process of
 updating relevant dynamic information.
 
+## Usage
+
+Create a copy of the file that you want to make dynamic.
+By simply adding `%{{ ... }}` to the parts that may change and need to be frequently updated, we can write JavaScript expressions inline or in a separate source file. In combination with this, a simple build-script can automatically update the file with the latest information at any time.
+
+### Inline Expressions
+
+### Source Functions
+
+### Other Properties
+
+Everything exported from the source file will be available in the template.
+
+
 ### Example
 ```bash
-dtu --file=./my_text_in.txt --source=./source.ts --output=./my_text_out.txt
+deno run -A cli.ts -f ./my_text_in.txt -s ./source.ts -o ./my_text_out.txt
 if [ $? -eq 0 ]; then
    echo "Successfully compiled file"
 else
@@ -28,10 +42,3 @@ was successful.
 ```bash
 deno run -A cli.ts --file=./my_text.txt --source=./source.ts --output=./my_text_out.txt
 ```
-```
-
-## Development
-
-All development is done in the GitHub repository and inside the `cli.ts` file.
-
-Compile the source code using `deno compile --output dtu.exe .\cli.ts`
