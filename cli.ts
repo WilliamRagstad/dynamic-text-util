@@ -2,36 +2,7 @@
 import { parse } from "https://deno.land/std/flags/mod.ts";
 
 let DEBUG = false;
-
-/**
- * A terminal utility program built on top of the Deno API.
- * It takes a file that shall be compiled and a source script
- * that contains all function mappings for each template string.
- * It then compiles the template strings and outputs the result
- * to the console.
- *
- * It is intended to be used as a CLI utility for developers
- * and authors in build scripts to automate the process of
- * updating relevant dynamic information.
- *
- * Example:
- * ```bash
- * dtu --file=./my_text_in.txt --source=./source.ts --output=./my_text_out.txt
- * if [ $? -eq 0 ]; then
- *    echo "Successfully compiled file"
- * else
- *   echo "Failed to compile file"
- * fi
- * ```
- *
- * The script can also be run directly using Deno's `run` command
- * passing the `--file`, `--source` and `--output` flags. The
- * program will exit with a status code of 0 if the compilation
- * was successful.
- * ```bash
- * deno run -A cli.ts --file=./my_text.txt --source=./source.ts
- * ```
- */
+let VERSION = '1.0.0';
 
 async function main() {
   const args = parse(Deno.args, {
@@ -57,16 +28,20 @@ async function main() {
       "debug": false,
     },
   });
-  if (args.help) {
-    help();
-    Deno.exit(0);
-  }
   const file = args.file;
   const source = args.source;
   const output = args.output;
   DEBUG = args.debug;
+  if (args.help || (!file && !source && !output)) {
+    help();
+    Deno.exit(0);
+  }
+  if (args.version) {
+    console.log(`Version: ${VERSION}`);
+    Deno.exit(0);
+  }
   if (!file || !source || !output) {
-    console.error("Missing required arguments --file, --source and --output.\nSee --help for more information.");
+    console.error("Missing required arguments --file, --source or --output.\nSee --help for more information.");
     Deno.exit(1);
   }
   const compiled = await compileFile(file, source);
@@ -75,7 +50,7 @@ async function main() {
 
 function help() {
   console.log(`Dynamic Text Utility - A utility program for developers and authors for dynamic updates to static files.
-By William Rågstad
+By William Rågstad, 2022-06.
 
 Usage: dtu [options]
 
