@@ -20,6 +20,7 @@ By simply adding `%{{ ... }}` to the parts that may change and need to be freque
 
 This tool allows you to write JavaScript expressions inline in any file.
 
+`README.md`
 ```md
 # Example Markdown
 The meaning of life is %{{ 7 * Math.sqrt(9) * 2 }}.
@@ -29,6 +30,7 @@ The meaning of life is %{{ 7 * Math.sqrt(9) * 2 }}.
 
 To not have to write the same JavaScript expressions over and over again, you can write them in a separate file and link it when compiling the template.
 
+`README.md`
 ```md
 # Example Markdown
 The meaning of life is %{{ answer }}.
@@ -36,6 +38,7 @@ The meaning of life is %{{ answer }}.
 
 And then link it to the source file:
 
+`source.ts`
 ```ts
 export function answer() {
   return 7 * Math.sqrt(9) * 2;
@@ -60,6 +63,9 @@ export const link = 'https://deno.land/';
 This is an example of a some dynamic text.
 We use the %{{ name }} framework version %{{ version }}, get the latest version at %{{ link }}!
 ```
+
+## More Examples
+More examples can be found in the `examples` folder in the repository.
 
 ## Build-Script Example
 ```bash
