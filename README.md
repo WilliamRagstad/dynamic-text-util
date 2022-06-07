@@ -26,7 +26,8 @@ passing the `--file`, `--source` and `--output` flags. The
 program will exit with a status code of 0 if the compilation
 was successful.
 ```bash
-deno run -A cli.ts --file=./my_text.txt --source=./source.ts
+deno run -A cli.ts --file=./my_text.txt --source=./source.ts --output=./my_text_out.txt
+```
 ```
 
 ## Development

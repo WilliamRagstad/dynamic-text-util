@@ -32,7 +32,7 @@ async function main() {
   const source = args.source;
   const output = args.output;
   DEBUG = args.debug;
-  if (args.help || (!file && !source && !output)) {
+  if (args.help || (!file && !output)) {
     help();
     Deno.exit(0);
   }
@@ -40,7 +40,7 @@ async function main() {
     console.log(`Version: ${VERSION}`);
     Deno.exit(0);
   }
-  if (!file || !source || !output) {
+  if (!file || !output) {
     console.error("Missing required arguments --file, --source or --output.\nSee --help for more information.");
     Deno.exit(1);
   }
