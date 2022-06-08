@@ -16,6 +16,12 @@ updating relevant dynamic information.
 Create a copy of the file that you want to make dynamic.
 By simply adding `%{{ ... }}` to the parts that may change and need to be frequently updated, we can write JavaScript expressions inline or in a separate source file. In combination with this, a simple build-script can automatically update the file with the latest information at any time.
 
+Blocks are also supported, using `%{{{ ... }}}` syntax. This is the same as `%{{ { ... } }}` which is translated into `() => { ... }` when compiled and runned.
+
+Template expressions can also be escaped using `\%{{ ... }}` which ignores the whole block and just outputs the string literally as `%{{ ... }}`.
+This is useful in case you want to use a template expression in a string that is not a template expression itself.
+Some programming languages may use the same syntax of `%{{ ... }}` for something else, hence the support to escape the template expression.
+
 ### Inline Expressions
 
 This tool allows you to write JavaScript expressions inline in any file.
@@ -24,6 +30,20 @@ This tool allows you to write JavaScript expressions inline in any file.
 ```md
 # Example Markdown
 The meaning of life is %{{ 7 * Math.sqrt(9) * 2 }}.
+```
+
+### Block Expressions
+
+Similarly, you can write JavaScript expressions in a block.
+
+`README.md`
+```md
+# Example Markdown
+The meaning of life is %{{{
+  let x = 7;
+  let y = Math.sqrt(9);
+  return x * y * 2
+}}}.
 ```
 
 ### Source Functions
@@ -44,6 +64,10 @@ export function answer() {
   return 7 * Math.sqrt(9) * 2;
 }
 ```
+
+The syntax to simply reference the function in `%{{ answer }}` is syntactic sugar for calling the function with no arguments `%{{ answer() }}`. This is useful if you want to use the same function in multiple places.
+This is a quality of life feature that is custom to this tool.
+The motivation for this is that functions should always be called in template strings.
 
 ### Other Properties
 

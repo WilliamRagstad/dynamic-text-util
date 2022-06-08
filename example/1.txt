@@ -8,7 +8,7 @@ The text below is a normal paragraph of text, but it also has a
 dynamic section. The dynamic section is fetched from a third-party
 source such as a database, api, file, user input, etc.
 
-The current year is 2022 and todays date is Wed Jun 08 2022.
+The current year is \2022 and todays date is Wed Jun 08 2022.
 
 This last dynamic expression is is written in-line and will be replaced with
 the calculated value.
