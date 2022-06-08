@@ -110,6 +110,8 @@ deno run -A cli.ts --file=./my_text.txt --source=./source.ts --output=./my_text_
 ```
 
 ## Roadmap
+ * [x] Add support for `%{{{ ... }}}` block expressions
+ * [ ] Support to escape `%{{ ... }}` expressions
  * [ ] Fix so that the source file is optional, a file can contain only inline expressions
  * [ ] Fix so that the output file is optional, and the output is written to stdout if no output file is specified
  * [ ] Add support for multiple source files

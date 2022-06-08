@@ -8,7 +8,7 @@ The text below is a normal paragraph of text, but it also has a
 dynamic section. The dynamic section is fetched from a third-party
 source such as a database, api, file, user input, etc.
 
-The current year is \%{{ current_year }} and todays date is %{{ todays_date() }}.
+The current year is %{{ current_year }} and todays date is %{{ todays_date() }}.
 
 This last dynamic expression is is written in-line and will be replaced with
 the calculated value.
@@ -26,3 +26,6 @@ derived from a block expression.
     var z = x + y;
     return z;
 }}}
+
+Sometimes you want to include a block expression in a normal paragraph without
+the dynamic parts. You can do this by using the \\%{{{ ... }}} syntax. 

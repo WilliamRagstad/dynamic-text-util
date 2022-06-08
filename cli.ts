@@ -1,8 +1,7 @@
-// deno-lint-ignore-file no-unused-vars ban-types
 import { parse } from "https://deno.land/std/flags/mod.ts";
 
 let DEBUG = false;
-let VERSION = '1.0.0';
+const VERSION = "1.0.0";
 
 async function main() {
   const args = parse(Deno.args, {
@@ -41,7 +40,9 @@ async function main() {
     Deno.exit(0);
   }
   if (!file || !output) {
-    console.error("Missing required arguments --file, --source or --output.\nSee --help for more information.");
+    console.error(
+      "Missing required arguments --file, --source or --output.\nSee --help for more information.",
+    );
     Deno.exit(1);
   }
   const compiled = await compileFile(file, source);
@@ -49,7 +50,8 @@ async function main() {
 }
 
 function help() {
-  console.log(`Dynamic Text Utility - A utility program for developers and authors for dynamic updates to static files.
+  console.log(
+    `Dynamic Text Utility - A utility program for developers and authors for dynamic updates to static files.
 By William Rågstad, 2022-06.
 
 Usage: dtu [options]
@@ -59,7 +61,8 @@ Options:
   --source, -s  The source script that contains the template strings
   --output, -o  The output file to write the compiled file to
   --help, -h    Show this help message
-`);
+`,
+  );
 }
 
 async function compileFile(file: string, source: string) {
@@ -72,51 +75,73 @@ async function compileFile(file: string, source: string) {
   const startSym = "%{{";
   const endSym = "}}";
   let start = fileContents.indexOf(startSym, 0); // Start index of expression
-  while(start !== -1) {
+  const isEscaped = () => start !== -1 && fileContents[start - 1] === "\\"; // If the expression is escaped
+  while (start !== -1) {
     let end = fileContents.indexOf(endSym, start); // End index of expression
-    if (end === -1) throw `Unclosed template string at index ${start}
+    if (end === -1) {
+      throw `Unclosed template string at index ${start}
     
 Hint: Use "${endSym}" to close a template string.`;
+    }
     // Check if it is a block end also ("}}}")
     if (fileContents[end + 2] === "}") {
       // Adjust the end index to include the closing block "}"
       end++;
     }
-    templateStrings.push({
-      start,
-      end,
-      expression: parseExpression(fileContents.substring(start + 3, end), sourceModule),
-    });
+    if (isEscaped()) {
+      // Remove the escape character prefix
+      templateStrings.push({
+        start: start - 1,
+        end: start - 2,
+        expression: "''"
+      });
+    } else {
+      templateStrings.push({
+        start,
+        end,
+        expression: parseExpression(
+          fileContents.substring(start + 3, end),
+          sourceModule,
+        ),
+      });
+    }
     start = fileContents.indexOf(startSym, end);
   }
 
   if (DEBUG) console.log("Template strings:", templateStrings);
   if (DEBUG) console.log("Source module:", sourceModule);
-  
+
   // Compile each template string
   let compiled = "";
   if (templateStrings.length === 0) {
     compiled = fileContents;
-  }
-  else {
+  } else {
     // Append everything before the first template string
     compiled = fileContents.substring(0, templateStrings[0].start);
 
     // Construct an isolated function with arguments from the exported module
     const sourceModuleName = getVariableName(() => sourceModule);
-    const funcStart =  `((${Object.keys(sourceModule).join(", ")}) =>`;
-    const funcEnd = `).call({}, ${Object.keys(sourceModule).map(k => sourceModuleName + "." + k).join(", ")})`;
-    
+    const funcStart = `((${Object.keys(sourceModule).join(", ")}) =>`;
+    const funcEnd = `).call({}, ${
+      Object.keys(sourceModule).map((k) => sourceModuleName + "." + k).join(
+        ", ",
+      )
+    })`;
+
     for (let i = 0; i < templateStrings.length; i++) {
       const template = templateStrings[i];
       const result = eval(funcStart + template.expression + funcEnd);
-      if (DEBUG) console.log(`Compiled expression ${template.expression} to ${result}`);
+      if (DEBUG) {
+        console.log(`Compiled expression ${template.expression} to ${result}`);
+      }
       compiled += result;
       // Append everything after the template string until the next template string
       if (i < templateStrings.length - 1) {
-        compiled += fileContents.substring(template.end + 2, templateStrings[i + 1].start);
-      }
-      else {
+        compiled += fileContents.substring(
+          template.end + 2,
+          templateStrings[i + 1].start,
+        );
+      } else {
         compiled += fileContents.substring(template.end + 2);
       }
     }
@@ -149,7 +174,10 @@ function parseExpression(expression: string, sourceModule: any) {
     return `${expression}()`;
   }
   // Check if its not a block but should be
-  if ((!expression.startsWith("{") || !expression.endsWith("}")) && expression.includes(";")) {
+  if (
+    (!expression.startsWith("{") || !expression.endsWith("}")) &&
+    expression.includes(";")
+  ) {
     throw `Expression "${expression}" should be a block, but does not start with "{" or end with "}".
 
 Hint: Use "%{{{ ... }}}" to include a block in a template string.`;
