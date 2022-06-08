@@ -8,11 +8,16 @@ The text below is a normal paragraph of text, but it also has a
 dynamic section. The dynamic section is fetched from a third-party
 source such as a database, api, file, user input, etc.
 
-The current year is %{{ current_year }} and todays date is %{{ todays_date() }}.
+The current year is 2022 and todays date is Wed Jun 08 2022.
 
 This last dynamic expression is is written in-line and will be replaced with
 the calculated value.
 
-2^20 = %{{ Math.pow(2, 20) }}
+2^20 = 1048576
 
-By %{{ author }}.
+By John Doe.
+
+The last line of the file is a normal paragraph of text. Except it is
+derived from a block expression.
+
+3
