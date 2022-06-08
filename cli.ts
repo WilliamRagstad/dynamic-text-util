@@ -73,8 +73,15 @@ async function compileFile(file: string, source: string) {
   const endSym = "}}";
   let start = fileContents.indexOf(startSym, 0); // Start index of expression
   while(start !== -1) {
-    const end = fileContents.indexOf(endSym, start); // End index of expression
-    if (end === -1) throw `Unclosed template string at index ${start}`;
+    let end = fileContents.indexOf(endSym, start); // End index of expression
+    if (end === -1) throw `Unclosed template string at index ${start}
+    
+Hint: Use "${endSym}" to close a template string.`;
+    // Check if it is a block end also ("}}}")
+    if (fileContents[end + 2] === "}") {
+      // Adjust the end index to include the closing block "}"
+      end++;
+    }
     templateStrings.push({
       start,
       end,
@@ -124,9 +131,7 @@ async function compileFile(file: string, source: string) {
  * @returns The name of the variable
  */
 function getVariableName<TResult>(name: () => TResult) {
-  const m = name.toString().split("=>")[1].trim();
-  if (m == '') throw "The function does not contain a statement matching 'return name;'";
-  return m;
+  return name.toString().split("=>")[1].trim();
 }
 
 /**
@@ -142,6 +147,12 @@ function parseExpression(expression: string, sourceModule: any) {
     typeof sourceModule[expression] === "function"
   ) {
     return `${expression}()`;
+  }
+  // Check if its not a block but should be
+  if ((!expression.startsWith("{") || !expression.endsWith("}")) && expression.includes(";")) {
+    throw `Expression "${expression}" should be a block, but does not start with "{" or end with "}".
+
+Hint: Use "%{{{ ... }}}" to include a block in a template string.`;
   }
   // Otherwise, treat it as a valid JavaScript expression already
   return expression;
